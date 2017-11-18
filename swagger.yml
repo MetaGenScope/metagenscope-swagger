@@ -1,0 +1,86 @@
+swagger: '2.0'
+info:
+  version: 0.0.1
+  title: MetaGenScope Service
+  description: Swagger spec for documenting the MetaGenScope service
+host: emptyfish.net
+schemes:
+- http
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+paths:
+  "/ping":
+    get:
+      description: Returns a sanity check
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: Will return 'pong!'
+  "/auth/register":
+    post:
+      description: Creates a new user
+      produces:
+      - application/json
+      parameters:
+      - name: user
+        in: body
+        description: User to add
+        required: true
+        schema:
+          "$ref": "#/definitions/User"
+      responses:
+        '201':
+          description: Successfully registered
+  "/auth/login":
+    post:
+      description: Logs a user in
+      produces:
+      - application/json
+      parameters:
+      - name: user
+        in: body
+        description: User to log in
+        required: true
+        schema:
+          "$ref": "#/definitions/User"
+      responses:
+        '200':
+          description: Successfully logged in
+  "/auth/status":
+    get:
+      description: Returns the logged in user's status
+      produces:
+      - application/json
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: user object
+  "/auth/logout":
+    get:
+      description: Logs a user out
+      produces:
+      - application/json
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: Successfully logged out
+definitions:
+  User:
+    type: object
+    required:
+    - username
+    - email
+    - password
+    properties:
+      username:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
