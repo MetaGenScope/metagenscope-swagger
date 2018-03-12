@@ -242,7 +242,7 @@ paths:
                 items:
                   $ref: '#/definitions/SampleGroup'
 
-  /api/vi/analysis_results/{result_uuid}:
+  /api/v1/analysis_results/{result_uuid}:
     get:
       description: Get AnalysisResult by uuid
       produces:
@@ -262,7 +262,7 @@ paths:
               analysis_result:
                 $ref: '#/definitions/AnalysisResult'
 
-  /api/vi/sample_groups:
+  /api/v1/sample_groups:
     post:
       description: Create an SampleGroup
       consumes:
@@ -286,7 +286,7 @@ paths:
               organization:
                 $ref: '#/definitions/SampleGroup'
 
-  /api/vi/sample_groups/{group_uuid}:
+  /api/v1/sample_groups/{group_uuid}:
     get:
       description: Get SampleGroup by uuid
       produces:
@@ -306,7 +306,7 @@ paths:
               sample_group:
                 $ref: '#/definitions/SampleGroupWithSamples'
 
-  /api/vi/samples:
+  /api/v1/samples:
     post:
       description: Create an Sample
       consumes:
@@ -330,7 +330,7 @@ paths:
               organization:
                 $ref: '#/definitions/Sample'
 
-  /api/vi/samples/{sample_uuid}:
+  /api/v1/samples/{sample_uuid}:
     get:
       description: Get Sample by uuid
       produces:
