@@ -1,86 +1,470 @@
 swagger: '2.0'
 info:
-  version: 0.0.1
+  version: 0.1.0
   title: MetaGenScope Service
   description: Swagger spec for documenting the MetaGenScope service
 host: emptyfish.net
 schemes:
-- http
+  - https
 securityDefinitions:
   Bearer:
     type: apiKey
     name: Authorization
     in: header
+
 paths:
-  "/ping":
-    get:
-      description: Returns a sanity check
-      produces:
-      - application/json
-      responses:
-        '200':
-          description: Will return 'pong!'
-  "/auth/register":
+  /api/v1/auth/register:
     post:
       description: Creates a new user
       produces:
-      - application/json
+        - application/json
       parameters:
-      - name: user
-        in: body
-        description: User to add
-        required: true
-        schema:
-          "$ref": "#/definitions/User"
+        - name: user
+          in: body
+          description: User to add
+          required: true
+          schema:
+            $ref: '#/definitions/User'
       responses:
         '201':
           description: Successfully registered
-  "/auth/login":
+
+  /api/v1/auth/login:
     post:
       description: Logs a user in
       produces:
-      - application/json
+        - application/json
       parameters:
-      - name: user
-        in: body
-        description: User to log in
-        required: true
-        schema:
-          "$ref": "#/definitions/User"
+        - name: user
+          in: body
+          description: User to log in
+          required: true
+          schema:
+            $ref: '#/definitions/User'
       responses:
         '200':
           description: Successfully logged in
-  "/auth/status":
+
+  /api/v1/auth/status:
     get:
       description: Returns the logged in user's status
       produces:
-      - application/json
+        - application/json
       security:
-      - Bearer: []
+        - Bearer: []
       responses:
         '200':
           description: user object
-  "/auth/logout":
+          schema:
+            $ref: '#/definitions/UserWithOrganizations'
+
+  /api/v1/auth/logout:
     get:
       description: Logs a user out
       produces:
-      - application/json
+        - application/json
       security:
-      - Bearer: []
+        - Bearer: []
       responses:
         '200':
           description: Successfully logged out
+
+  /api/v1/organizations:
+    get:
+      description: Returns list of Organizations
+      produces:
+        - application/json
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: List of Organizations
+          schema:
+            properties:
+              organizations:
+                type: array
+                items:
+                  $ref: '#/definitions/OrganizationWithUsers'
+    post:
+      description: Create an Organization
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: organization
+          description: Organization to be created
+          schema:
+            $ref: '#/definitions/Organization'
+      responses:
+        '201':
+          description: Newly created Organization
+          schema:
+            properties:
+              organization:
+                $ref: '#/definitions/Organization'
+
+  /api/v1/organizations/{organization_uuid}:
+    get:
+      description: Find Organization by UUID
+      produces:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - name: "organization_uuid"
+          in: "path"
+          description: "UUID of Organization that needs to be fetched"
+          required: true
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: List of Organizations
+          schema:
+            properties:
+              organizations:
+                type: array
+                items:
+                  $ref: '#/definitions/Organization'
+
+  /api/v1/organizations/{organization_uuid}/users:
+    get:
+      description: Find Users for a specific Organization
+      produces:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - name: "organization_uuid"
+          in: "path"
+          description: "UUID of Organization that needs to be fetched"
+          required: true
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: List of Users
+          schema:
+            properties:
+              users:
+                type: array
+                items:
+                  $ref: '#/definitions/User'
+    post:
+      description: Add User to an Organization
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - name: "organization_uuid"
+          in: "path"
+          description: "UUID of Organization to add the User to"
+          required: true
+          type: string
+          format: uuid
+        - name: "user_id"
+          in: "body"
+          description: "UUID of User to add to Organization"
+          required: true
+          schema:
+            type: object
+            required:
+              - userId
+            properties:
+              userId:
+                type: string
+                format: uuid
+      responses:
+        '201':
+          description: Newly created Organization
+          schema:
+            properties:
+              organization:
+                $ref: '#/definitions/OrganizationWithUsers'
+
+  /api/v1/organizations/{organization_uuid}/sample_groups:
+    get:
+      description: Find SampleGroups for a specific Organization
+      produces:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - name: "organization_uuid"
+          in: "path"
+          description: "UUID of Organization that needs to be fetched"
+          required: true
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: List of SampleGroups
+          schema:
+            properties:
+              users:
+                type: array
+                items:
+                  $ref: '#/definitions/SampleGroup'
+
+  /api/v1/organizations/{organization_uuid}/sample_groups/{page}:
+    get:
+      description: Find Users for a specific Organization
+      produces:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - name: "organization_uuid"
+          in: "path"
+          description: "UUID of Organization that needs to be fetched"
+          required: true
+          type: string
+          format: uuid
+        - name: "page"
+          in: "path"
+          description: "Page of results to be fetched"
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: List of SampleGroups
+          schema:
+            properties:
+              users:
+                type: array
+                items:
+                  $ref: '#/definitions/SampleGroup'
+
+  /api/vi/analysis_results/{result_uuid}:
+    get:
+      description: Get AnalysisResult by uuid
+      produces:
+        - application/json
+      parameters:
+        - name: "result_uuid"
+          in: "path"
+          description: "UUID of AnalysisResult that needs to be fetched"
+          required: true
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: AnalysisResult object
+          schema:
+            properties:
+              analysis_result:
+                $ref: '#/definitions/AnalysisResult'
+
+  /api/vi/sample_groups:
+    post:
+      description: Create an SampleGroup
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: sample_group
+          description: SampleGroup to be created
+          required: true
+          schema:
+            $ref: '#/definitions/SampleGroup'
+      responses:
+        '201':
+          description: Newly created SampleGroup
+          schema:
+            properties:
+              organization:
+                $ref: '#/definitions/SampleGroup'
+
+  /api/vi/sample_groups/{group_uuid}:
+    get:
+      description: Get SampleGroup by uuid
+      produces:
+        - application/json
+      parameters:
+        - name: "group_uuid"
+          in: "path"
+          description: "UUID of SampleGroup that needs to be fetched"
+          required: true
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: SampleGroup object
+          schema:
+            properties:
+              sample_group:
+                $ref: '#/definitions/SampleGroupWithSamples'
+
+  /api/vi/samples:
+    post:
+      description: Create an Sample
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: sample
+          description: Sample to be created
+          required: true
+          schema:
+            $ref: '#/definitions/Sample'
+      responses:
+        '201':
+          description: Newly created Sample
+          schema:
+            properties:
+              organization:
+                $ref: '#/definitions/Sample'
+
+  /api/vi/samples/{sample_uuid}:
+    get:
+      description: Get Sample by uuid
+      produces:
+        - application/json
+      parameters:
+        - name: "sample_uuid"
+          in: "path"
+          description: "UUID of Sample that needs to be fetched"
+          required: true
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Sample object
+          schema:
+            properties:
+              sample_group:
+                $ref: '#/definitions/Sample'
+
 definitions:
   User:
     type: object
     required:
-    - username
-    - email
-    - password
+      - username
+      - email
+      - password
     properties:
+      uuid:
+        type: string
+        format: uuid
       username:
         type: string
       email:
         type: string
+        format: email
       password:
         type: string
+        format: password
+      active:
+        type: boolean
+      admin:
+        type: boolean
+      created_at:
+        type: string
+        format: date-time
+
+  UserWithOrganizations:
+    allOf:
+      - $ref: '#/definitions/User'
+      - type: object
+        properties:
+          organizations:
+            type: array
+            items:
+              $ref: '#/definitions/Organization'
+
+  Organization:
+    type: object
+    required:
+      - name
+      - full_name
+    properties:
+      uuid:
+        type: string
+        format: uuid
+      name:
+        type: string
+      admin_email:
+        type: string
+        format: email
+      created_at:
+        type: string
+        format: date-time
+
+  OrganizationWithUsers:
+    allOf:
+      - $ref: '#/definitions/Organization'
+      - type: object
+        properties:
+          users:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+
+  AnalysisResult:
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid
+      sample_group_id:
+        type: string
+        format: uuid
+      created_at:
+        type: string
+        format: date-time
+
+  Sample:
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid
+      name:
+        type: string
+      metadata:
+        type: object
+        additionalProperties: true
+      created_at:
+        type: string
+        format: date-time
+
+  SampleGroup:
+    type: object
+    properties:
+      organization_id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      access_scheme:
+        type: string
+        enum:
+          - public
+          - private
+      created_at:
+        type: string
+
+  SampleGroupWithSamples:
+    allOf:
+      - $ref: '#/definitions/SampleGroup'
+      - type: object
+        properties:
+          samples:
+            type: array
+            items:
+              $ref: '#/definitions/Sample'
