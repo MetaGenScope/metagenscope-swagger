@@ -32,6 +32,24 @@ paths:
         '201':
           $ref: '#/components/responses/AuthenticationResponse'
 
+  /api/v1/auth/login:
+    post:
+      summary: Logs a user in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/AuthenticationResponse'
+
 components:
   securitySchemes:
     bearerAuth:
